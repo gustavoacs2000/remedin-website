@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Remedin · Conceitos de Website — Portal de Revisão</title>
+<meta name="description" content="Portal de revisão dos conceitos de design para o website da Cachaça Remedin. Explore e compare 4 propostas visuais distintas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #0a0a0f;
+    color: #e8e4df;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== ANIMATED BACKGROUND ===== */
+  .bg-glow {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .bg-glow::before {
+    content: '';
+    position: absolute;
+    width: 800px;
+    height: 800px;
+    top: -200px;
+    left: -100px;
+    background: radial-gradient(circle, rgba(182,138,60,.12) 0%, transparent 70%);
+    animation: float1 18s ease-in-out infinite;
+  }
+  .bg-glow::after {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    bottom: -150px;
+    right: -100px;
+    background: radial-gradient(circle, rgba(192,97,42,.10) 0%, transparent 70%);
+    animation: float2 22s ease-in-out infinite;
+  }
+  @keyframes float1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(80px, 60px) scale(1.1); }
+    66% { transform: translate(-40px, 100px) scale(0.95); }
+  }
+  @keyframes float2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-60px, -80px) scale(1.12); }
+  }
+
+  /* ===== WRAPPER ===== */
+  .page-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    padding: 60px 0 20px;
+    text-align: center;
+  }
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(182,138,60,.12);
+    border: 1px solid rgba(182,138,60,.22);
+    border-radius: 40px;
+    padding: 8px 22px;
+    margin-bottom: 32px;
+    animation: fadeInDown .8s ease;
+  }
+  .header-badge svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: #c9a24b;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .header-badge span {
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: #c9a24b;
+  }
+  .header-logo {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 700;
+    color: #f5f0e8;
+    letter-spacing: .02em;
+    margin-bottom: 6px;
+    animation: fadeInDown .8s ease .1s both;
+  }
+  .header-logo em {
+    font-style: italic;
+    color: #c9a24b;
+  }
+  .header-sub {
+    font-size: clamp(.92rem, 1.5vw, 1.08rem);
+    color: #9a948a;
+    max-width: 540px;
+    margin: 0 auto 14px;
+    font-weight: 300;
+    animation: fadeInDown .8s ease .2s both;
+  }
+  .header-divider {
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #c9a24b, transparent);
+    margin: 24px auto 0;
+    animation: fadeInDown .8s ease .3s both;
+  }
+
+  /* ===== INSTRUCTIONS ===== */
+  .instructions {
+    text-align: center;
+    padding: 36px 0 48px;
+    animation: fadeInUp .8s ease .4s both;
+  }
+  .instructions p {
+    font-size: .88rem;
+    color: #7a756c;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+  .instructions strong {
+    color: #b8a882;
+    font-weight: 500;
+  }
+
+  /* ===== GRID ===== */
+  .concepts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+    padding-bottom: 100px;
+  }
+
+  /* ===== CARD ===== */
+  .concept-card {
+    position: relative;
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform .5s cubic-bezier(.19,1,.22,1), box-shadow .5s ease, border-color .4s ease;
+    animation: fadeInUp .7s ease both;
+  }
+  .concept-card:nth-child(1) { animation-delay: .3s; }
+  .concept-card:nth-child(2) { animation-delay: .4s; }
+  .concept-card:nth-child(3) { animation-delay: .5s; }
+  .concept-card:nth-child(4) { animation-delay: .6s; }
+
+  .concept-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(182,138,60,.3);
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,.6), 0 0 40px -10px rgba(182,138,60,.08);
+  }
+
+  /* Concept Number Badge */
+  .concept-number {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 5;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10,10,15,.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(182,138,60,.35);
+    border-radius: 50%;
+    font-family: 'Playfair Display', serif;
+    font-size: .88rem;
+    font-weight: 700;
+    color: #c9a24b;
+  }
+
+  /* Preview Container */
+  .preview-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9.5;
+    overflow: hidden;
+    background: #111114;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+  .preview-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(10,10,15,.6) 100%);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .preview-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1440px;
+    height: 900px;
+    border: 0;
+    transform-origin: 0 0;
+    pointer-events: none;
+  }
+
+  /* Hover overlay */
+  .preview-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10,10,15,.55);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity .4s ease;
+  }
+  .concept-card:hover .preview-overlay {
+    opacity: 1;
+  }
+  .preview-overlay-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .78rem;
+    font-weight: 500;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #c9a24b;
+    border: 1px solid rgba(182,138,60,.5);
+    border-radius: 30px;
+    padding: 10px 24px;
+    background: rgba(10,10,15,.6);
+    backdrop-filter: blur(8px);
+    transition: background .3s ease, border-color .3s ease;
+  }
+  .concept-card:hover .preview-overlay-text {
+    background: rgba(182,138,60,.15);
+    border-color: rgba(182,138,60,.7);
+  }
+  .preview-overlay-text svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Card Body */
+  .card-body {
+    padding: 24px 28px 28px;
+  }
+
+  /* Style Tag */
+  .style-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .64rem;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .style-tag svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Tag Color Variants */
+  .tag-heritage {
+    color: #c9a24b;
+    background: rgba(182,138,60,.12);
+    border: 1px solid rgba(182,138,60,.2);
+  }
+  .tag-lifestyle {
+    color: #8cc63f;
+    background: rgba(140,198,63,.10);
+    border: 1px solid rgba(140,198,63,.2);
+  }
+  .tag-terroir {
+    color: #c0612a;
+    background: rgba(192,97,42,.12);
+    border: 1px solid rgba(192,97,42,.2);
+  }
+  .tag-premium {
+    color: #e3c77e;
+    background: rgba(227,199,126,.10);
+    border: 1px solid rgba(227,199,126,.2);
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #f5f0e8;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+  .card-desc {
+    font-size: .86rem;
+    color: #8a8478;
+    margin-bottom: 22px;
+    line-height: 1.65;
+    min-height: 56px;
+  }
+  .card-keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 22px;
+  }
+  .keyword {
+    font-size: .62rem;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #6e6860;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+    padding: 4px 12px;
+  }
+
+  /* CTA Button */
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #0a0a0f;
+    background: linear-gradient(135deg, #c9a24b, #e3c77e);
+    padding: 13px 28px;
+    border-radius: 10px;
+    transition: transform .3s ease, box-shadow .3s ease, letter-spacing .3s ease;
+    width: 100%;
+    justify-content: center;
+  }
+  .cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -6px rgba(182,138,60,.4);
+    letter-spacing: .12em;
+  }
+  .cta-btn svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform .3s ease;
+  }
+  .cta-btn:hover svg {
+    transform: translateX(3px);
+  }
+
+  /* ===== FOOTER ===== */
+  .portal-footer {
+    text-align: center;
+    padding: 0 0 48px;
+    animation: fadeInUp .8s ease .7s both;
+  }
+  .footer-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+    margin-bottom: 32px;
+  }
+  .footer-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: .88rem;
+    color: #5a554d;
+    letter-spacing: .08em;
+    margin-bottom: 6px;
+  }
+  .footer-note {
+    font-size: .72rem;
+    color: #3d3a36;
+    letter-spacing: .04em;
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .concepts-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    .page-wrap {
+      padding: 0 20px;
+    }
+    .header {
+      padding: 40px 0 14px;
+    }
+    .instructions {
+      padding: 24px 0 36px;
+    }
+  }
+  @media (max-width: 560px) {
+    .card-body {
+      padding: 20px 22px 24px;
+    }
+    .header-logo {
+      font-size: 1.8rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .concept-card, .header-badge, .header-logo, .header-sub,
+    .header-divider, .instructions, .portal-footer {
+      animation: none !important;
+      opacity: 1;
+      transform: none;
+    }
+    .concept-card:hover { transform: none; }
+    .bg-glow::before, .bg-glow::after { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Animated background -->
+<div class="bg-glow" aria-hidden="true"></div>
+
+<div class="page-wrap">
+
+  <!-- ===== HEADER ===== -->
+  <header class="header" id="portal-header">
+    <div class="header-badge">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      <span>GA Solutions · Design Review</span>
+    </div>
+    <h1 class="header-logo">Conceitos de <em>Website</em></h1>
+    <p class="header-sub">Portal de revisão dos conceitos de design para o website da Cachaça Remedin</p>
+    <div class="header-divider"></div>
+  </header>
+
+  <!-- ===== INSTRUCTIONS ===== -->
+  <section class="instructions">
+    <p>Apresentamos <strong>4 propostas visuais distintas</strong> para o novo site da Remedin. Cada conceito traz uma identidade única. Clique em <strong>"Ver Página Completa"</strong> para explorar cada proposta em detalhe e nos compartilhe sua escolha.</p>
+  </section>
+
+  <!-- ===== GRID ===== -->
+  <section class="concepts-grid" id="concepts-grid">
+
+    <!-- CONCEPT 1 – Heritage -->
+    <article class="concept-card" id="concept-1">
+      <div class="concept-number">01</div>
+      <div class="preview-container">
+        <iframe src="remedin-v1-heritage.html" class="preview-iframe" loading="lazy" tabindex="-1" title="Preview do Conceito 1 — Heritage" sandbox="allow-same-origin"></iframe>
+        <a href="remedin-v1-heritage.html" class="preview-overlay" aria-label="Abrir Conceito 1 em tela cheia">
+          <span class="preview-overlay-text">
+            <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Pré-visualizar
+          </span>
+        </a>
+      </div>
+      <div class="card-body">
+        <div class="style-tag tag-heritage">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+          Heritage · Tradição
+        </div>
+        <h2 class="card-title">A Lenda do Cerrado</h2>
+        <p class="card-desc">Design vintage e artesanal que celebra a história da família Mandelli e o legado do alambique. Tom quente, textura de papel envelhecido e tipografia clássica.</p>
+        <div class="card-keywords">
+          <span class="keyword">Vintage</span>
+          <span class="keyword">Artesanal</span>
+          <span class="keyword">Tradição</span>
+          <span class="keyword">Histórico</span>
+        </div>
+        <a href="remedin-v1-heritage.html" class="cta-btn" id="cta-concept-1">
+          Ver Página Completa
+          <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+    </article>
+
+    <!-- CONCEPT 2 – Lifestyle -->
+    <article class="concept-card" id="concept-2">
+      <div class="concept-number">02</div>
+      <div class="preview-container">
+        <iframe src="remedin-v2-lifestyle.html" class="preview-iframe" loading="lazy" tabindex="-1" title="Preview do Conceito 2 — Lifestyle" sandbox="allow-same-origin"></iframe>
+        <a href="remedin-v2-lifestyle.html" class="preview-overlay" aria-label="Abrir Conceito 2 em tela cheia">
+          <span class="preview-overlay-text">
+            <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Pré-visualizar
+          </span>
+        </a>
+      </div>
+      <div class="card-body">
+        <div class="style-tag tag-lifestyle">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          Lifestyle · Festa
+        </div>
+        <h2 class="card-title">O Cerrado em Festa</h2>
+        <p class="card-desc">Visual vibrante e descontraído para o público jovem. Cores vivas, tipografia bold e energia de festa. Convida para o rolê com a Remedin.</p>
+        <div class="card-keywords">
+          <span class="keyword">Vibrante</span>
+          <span class="keyword">Jovem</span>
+          <span class="keyword">Colorido</span>
+          <span class="keyword">Descontraído</span>
+        </div>
+        <a href="remedin-v2-lifestyle.html" class="cta-btn" id="cta-concept-2">
+          Ver Página Completa
+          <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+    </article>
+
+    <!-- CONCEPT 3 – Terroir -->
+    <article class="concept-card" id="concept-3">
+      <div class="concept-number">03</div>
+      <div class="preview-container">
+        <iframe src="remedin-v3-terroir.html" class="preview-iframe" loading="lazy" tabindex="-1" title="Preview do Conceito 3 — Terroir" sandbox="allow-same-origin"></iframe>
+        <a href="remedin-v3-terroir.html" class="preview-overlay" aria-label="Abrir Conceito 3 em tela cheia">
+          <span class="preview-overlay-text">
+            <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Pré-visualizar
+          </span>
+        </a>
+      </div>
+      <div class="card-body">
+        <div class="style-tag tag-terroir">
+          <svg viewBox="0 0 24 24"><path d="M12 22c-4 0-8-2-8-6 0-6 8-14 8-14s8 8 8 14c0 4-4 6-8 6z"/></svg>
+          Terroir · Natureza
+        </div>
+        <h2 class="card-title">Do Campo ao Copo</h2>
+        <p class="card-desc">Narrativa editorial que guia o visitante pelo processo produtivo — da terra ao alambique. Tom terroso, tipografia orgânica e foco no terroir do cerrado.</p>
+        <div class="card-keywords">
+          <span class="keyword">Orgânico</span>
+          <span class="keyword">Editorial</span>
+          <span class="keyword">Processo</span>
+          <span class="keyword">Terroir</span>
+        </div>
+        <a href="remedin-v3-terroir.html" class="cta-btn" id="cta-concept-3">
+          Ver Página Completa
+          <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+    </article>
+
+    <!-- CONCEPT 4 – Premium -->
+    <article class="concept-card" id="concept-4">
+      <div class="concept-number">04</div>
+      <div class="preview-container">
+        <iframe src="remedin-v4-premium.html" class="preview-iframe" loading="lazy" tabindex="-1" title="Preview do Conceito 4 — Premium" sandbox="allow-same-origin"></iframe>
+        <a href="remedin-v4-premium.html" class="preview-overlay" aria-label="Abrir Conceito 4 em tela cheia">
+          <span class="preview-overlay-text">
+            <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Pré-visualizar
+          </span>
+        </a>
+      </div>
+      <div class="card-body">
+        <div class="style-tag tag-premium">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Premium · Luxury
+        </div>
+        <h2 class="card-title">A Cachaça Elevada</h2>
+        <p class="card-desc">Estética ultra-premium com fundo negro e acentos em ouro. Inspira exclusividade e sofisticação. Posiciona a Remedin como destilado de alta gastronomia.</p>
+        <div class="card-keywords">
+          <span class="keyword">Luxo</span>
+          <span class="keyword">Sofisticado</span>
+          <span class="keyword">Exclusivo</span>
+          <span class="keyword">Black & Gold</span>
+        </div>
+        <a href="remedin-v4-premium.html" class="cta-btn" id="cta-concept-4">
+          Ver Página Completa
+          <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="portal-footer">
+    <div class="footer-divider"></div>
+    <p class="footer-brand">GA Solutions · Design & Desenvolvimento</p>
+    <p class="footer-note">Documento confidencial — exclusivo para revisão do cliente</p>
+  </footer>
+
+</div>
+
+<script>
+  // Scale iframes to fit preview containers
+  function scaleIframes() {
+    document.querySelectorAll('.preview-container').forEach(container => {
+      const iframe = container.querySelector('.preview-iframe');
+      if (!iframe) return;
+      const containerWidth = container.offsetWidth;
+      const scale = containerWidth / 1440;
+      iframe.style.transform = `scale(${scale})`;
+    });
+  }
+
+  window.addEventListener('load', scaleIframes);
+  window.addEventListener('resize', scaleIframes);
+
+  // Intersection Observer for reveal animation
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'none';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.concept-card').forEach(card => {
+      observer.observe(card);
+    });
+  }
+</script>
+</body>
+</html>
