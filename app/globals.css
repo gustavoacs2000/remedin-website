@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Remedin vintage premium palette mapped to design tokens (dark theme) */
+    --background: 33 22% 6%;        /* #15110C ink */
+    --foreground: 38 38% 84%;       /* bone/cream */
+
+    --card: 33 24% 9%;
+    --card-foreground: 38 38% 86%;
+
+    --popover: 33 24% 8%;
+    --popover-foreground: 38 38% 86%;
+
+    --primary: 39 49% 48%;          /* gold #B68A3C */
+    --primary-foreground: 33 30% 7%;
+
+    --secondary: 16 42% 30%;        /* oxblood #7A3320 */
+    --secondary-foreground: 38 45% 90%;
+
+    --muted: 33 16% 16%;
+    --muted-foreground: 38 16% 64%;
+
+    --accent: 41 60% 58%;           /* gold highlight #D7AC52 */
+    --accent-foreground: 33 30% 7%;
+
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 39 35% 28%;
+    --input: 39 25% 22%;
+    --ring: 41 60% 58%;
+
+    --radius: 0.4rem;
+    --radius-sm: calc(0.4rem - 2px);
+    --radius-lg: calc(0.4rem + 4px);
+    --radius-full: 9999px;
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.25);
+    --shadow-md: 0 8px 22px -10px rgb(0 0 0 / 0.55);
+    --shadow-lg: 0 22px 50px -24px rgb(0 0 0 / 0.75);
+
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-slow: 350ms;
+  }
+
+  /* Force the brand dark theme regardless of system preference */
+  .dark, :root {
+    color-scheme: dark;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Hide hydration error overlays/markers gracefully */
+  [data-hydration-error] { display: none !important; }
+}
+
+@layer components {
+  .font-display { font-family: var(--font-display); }
+  .font-label { font-family: var(--font-label); }
+  .font-body { font-family: var(--font-body); }
+
+  .eyebrow {
+    font-family: var(--font-label);
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    font-size: 0.66rem;
+    color: hsl(var(--primary));
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .eyebrow::before, .eyebrow::after {
+    content: "";
+    width: 26px;
+    height: 1px;
+    background: hsl(var(--primary));
+    opacity: 0.6;
+  }
+  .eyebrow.center::before { display: inline-block; }
+
+  .ornament-frame {
+    position: absolute;
+    inset: 18px;
+    border: 1px solid hsl(var(--primary) / 0.4);
+    pointer-events: none;
+  }
+
+  .gold-text {
+    background: linear-gradient(90deg, #b68a3c, #e8c878, #b68a3c);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #100c08; }
+::-webkit-scrollbar-thumb { background: #5a4423; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #7a5c30; }
