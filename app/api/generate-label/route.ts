@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { uploadBuffer, getFileUrl } from '@/lib/s3'
 import { prisma } from '@/lib/db'
+import { getOpenRouterHeaders, OPENROUTER_BASE_URL, OPENROUTER_MODELS } from '@/lib/openrouter'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -32,28 +33,57 @@ export async function POST(req: NextRequest) {
     const styleHint = STYLE_HINTS?.[style] ?? STYLE_HINTS.vintage
     const prompt = `Crie um rótulo de garrafa de cachaça premium brasileira, formato retangular vertical, alta resolução, pronto para impressão. ${styleHint}.\n\nNome da cachaça em destaque: "${cachacaName}". Tipo: ${cachacaType}. Origem: ${origin}. Volume: ${volume}. Teor alcoólico: ${abv}.${year ? ` Ano/Safra: ${year}.` : ''}\n\nDetalhes adicionais do cliente: ${description || 'paleta em preto e dourado, molduras ornamentais, ar sofisticado e artesanal.'}\n\nO rótulo deve conter molduras decorativas, hierarquia tipográfica clara, e parecer um rótulo de bebida destilada real e elegante. Apenas o rótulo, centralizado, sem a garrafa.`
 
-    const apiRes = await fetch('https://apps.abacus.ai/v1/chat/completions', {
+    // OpenRouter supports image generation via compatible models.
+    // We use the OpenAI-compatible endpoint with the image model.
+    const apiRes = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.ABACUSAI_API_KEY}`,
-      },
+      headers: getOpenRouterHeaders(),
       body: JSON.stringify({
-        model: 'gpt-5.1',
+        model: OPENROUTER_MODELS.image,
         messages: [{ role: 'user', content: prompt }],
-        modalities: ['image'],
-        image_config: { aspect_ratio: '2:3', num_images: 1 },
+        // Request image output via the provider's native image generation
+        modalities: ['text', 'image'],
+        max_tokens: 1024,
       }),
     })
 
     if (!apiRes.ok) {
       const t = await apiRes.text().catch(() => '')
+      console.error('[generate-label] OpenRouter error:', apiRes.status, t?.slice(0, 300))
       return new Response(JSON.stringify({ error: 'Falha na geração de imagem', detail: t?.slice(0, 200) }), { status: 502 })
     }
 
     const data = await apiRes.json().catch(() => null)
-    const images = data?.choices?.[0]?.message?.images ?? []
-    const dataUrl: string | undefined = images?.[0]?.image_url?.url
+
+    // OpenRouter / OpenAI image responses can come in different formats:
+    // 1) choices[0].message.content as an array with image_url items
+    // 2) choices[0].message.images array (Abacus-style)
+    // Try to extract the image from whichever format is returned
+    let dataUrl: string | undefined
+
+    const message = data?.choices?.[0]?.message
+    if (message) {
+      // Format 1: content array with image parts (OpenAI native)
+      if (Array.isArray(message.content)) {
+        const imgPart = message.content.find(
+          (p: any) => p.type === 'image_url' || p.type === 'image'
+        )
+        dataUrl = imgPart?.image_url?.url || imgPart?.url
+      }
+
+      // Format 2: images array (legacy / some providers)
+      if (!dataUrl) {
+        const images = message.images ?? []
+        dataUrl = images?.[0]?.image_url?.url ?? images?.[0]?.url
+      }
+
+      // Format 3: inline base64 in content string
+      if (!dataUrl && typeof message.content === 'string') {
+        const match = message.content.match(/data:image\/[^;]+;base64,[A-Za-z0-9+/=]+/)
+        if (match) dataUrl = match[0]
+      }
+    }
+
     if (!dataUrl || !dataUrl.startsWith('data:')) {
       return new Response(JSON.stringify({ error: 'Nenhuma imagem retornada pelo serviço' }), { status: 502 })
     }
@@ -96,6 +126,7 @@ export async function POST(req: NextRequest) {
       headers: { 'Content-Type': 'application/json' },
     })
   } catch (e) {
+    console.error('[generate-label] Internal error:', e)
     return new Response(JSON.stringify({ error: 'Erro interno ao gerar o rótulo' }), { status: 500 })
   }
 }

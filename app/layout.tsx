@@ -33,9 +33,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <head>
-        <script src="https://apps.abacus.ai/chatllm/appllm-lib.js" async></script>
-      </head>
+      <head />
       <body className={`${zilla.variable} ${oswald.variable} ${spectral.variable} font-body antialiased`}>
         <Providers>
           <AgeGate />

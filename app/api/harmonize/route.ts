@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { getProduct } from '@/lib/products'
+import { getOpenRouterHeaders, OPENROUTER_BASE_URL, OPENROUTER_MODELS } from '@/lib/openrouter'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,14 +15,11 @@ export async function POST(req: NextRequest) {
 
     const prompt = `Você é um sommelier brasileiro especialista em cachaça premium. Escreva uma sugestão de harmonização sofisticada, calorosa e objetiva (máximo 160 palavras) em português do Brasil para a cachaça "${product.name}" (${product.tier}).\n\nPerfil: ${product.harmonizePrompt}\nAroma: ${product.aroma}\nSabor: ${product.flavor}\nOcasião: ${product.occasion}\n\nInclua: 1) dois ou três pratos/petiscos ideais, 2) um momento perfeito para apreciar, 3) uma dica de serviço (temperatura/copo). Use linguagem elegante, sem listas numeradas, em parágrafos curtos. Termine com "Aprecie com moderação."`
 
-    const apiRes = await fetch('https://apps.abacus.ai/v1/chat/completions', {
+    const apiRes = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.ABACUSAI_API_KEY}`,
-      },
+      headers: getOpenRouterHeaders(),
       body: JSON.stringify({
-        model: 'gpt-5.4-mini',
+        model: OPENROUTER_MODELS.text,
         messages: [{ role: 'user', content: prompt }],
         stream: true,
         max_tokens: 600,
@@ -29,6 +27,8 @@ export async function POST(req: NextRequest) {
     })
 
     if (!apiRes.ok || !apiRes.body) {
+      const detail = await apiRes.text().catch(() => '')
+      console.error('[harmonize] OpenRouter error:', apiRes.status, detail?.slice(0, 300))
       return new Response('Erro ao contatar o serviço de IA', { status: 502 })
     }
 
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
                   const chunk = parsed?.choices?.[0]?.delta?.content
                   if (chunk) controller.enqueue(encoder.encode(chunk))
                 } catch {
-                  // skip
+                  // skip malformed chunks
                 }
               }
             }
@@ -77,6 +77,7 @@ export async function POST(req: NextRequest) {
       },
     })
   } catch (e) {
+    console.error('[harmonize] Internal error:', e)
     return new Response('Erro interno', { status: 500 })
   }
 }
